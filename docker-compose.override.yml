@@ -1,0 +1,17 @@
+# Dev-only: Vite dev server. Dimuat otomatis oleh `docker compose`.
+# Production memakai: docker compose -f docker-compose.yml ...
+services:
+  node:
+    image: node:22-alpine
+    container_name: koregrid-node
+    user: "1000:1000"   # samakan dengan hasil `id -u`:`id -g`
+    working_dir: /var/www/html
+    environment:
+      npm_config_cache: /tmp/.npm
+    command: npm run dev
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "127.0.0.1:5173:5173"
+    networks: [koregrid]
+    restart: unless-stopped

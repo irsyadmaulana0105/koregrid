@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => Inertia::render('Welcome', [
+    'appName' => config('app.name'),
+    'phpVersion' => PHP_VERSION,
+]))->name('home');

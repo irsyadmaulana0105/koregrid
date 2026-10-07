@@ -1,6 +1,8 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
+import inertia from '@inertiajs/vite';
 import tailwindcss from '@tailwindcss/vite';
+import vue from '@vitejs/plugin-vue';
+import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
@@ -9,10 +11,16 @@ export default defineConfig({
             refresh: true,
         }),
         tailwindcss(),
+        inertia(),
+        vue({
+            template: {
+                transformAssetUrls: { base: null, includeAbsolute: false },
+            },
+        }),
     ],
     server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
+        host: '0.0.0.0',
+        hmr: { host: 'localhost' },
+        watch: { ignored: ['**/storage/framework/views/**'] },
     },
 });
