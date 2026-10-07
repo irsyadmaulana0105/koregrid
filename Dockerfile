@@ -24,7 +24,7 @@ RUN npm run build
 
 # ── Stage 3: base runtime (dipakai development & production) ────
 FROM php:${PHP_VERSION}-fpm-alpine AS base
-COPY --from=mlocati/docker-php-extension-installer:latest \
+COPY --from=mlocati/php-extension-installer:latest \
      /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions pdo_pgsql redis pcntl bcmath intl zip opcache
 WORKDIR /var/www/html
