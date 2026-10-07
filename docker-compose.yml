@@ -1,0 +1,86 @@
+name: koregrid
+
+x-app-base: &app-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+    target: development
+  image: koregrid-app:dev
+  env_file: .env
+  working_dir: /var/www/html
+  volumes:
+    - ./:/var/www/html
+    - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini:ro
+  networks: [koregrid]
+  restart: unless-stopped
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  app:
+    <<: *app-base
+    container_name: koregrid-app
+
+  queue:
+    <<: *app-base
+    container_name: koregrid-queue
+    command: php artisan queue:work redis --tries=3 --max-time=3600
+
+  scheduler:
+    <<: *app-base
+    container_name: koregrid-scheduler
+    command: php artisan schedule:work
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: koregrid-nginx
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [app]
+    networks: [koregrid]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: koregrid-postgres
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [koregrid]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: koregrid-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    command: ["sh", "-c", "redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [koregrid]
+    restart: unless-stopped
+
+networks:
+  koregrid:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
