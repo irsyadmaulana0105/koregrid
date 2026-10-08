@@ -30,7 +30,7 @@ return new class extends Migration
 
         // Append-only: tolak UPDATE, DELETE, dan TRUNCATE dari siapa pun yang tidak mematikan trigger.
         DB::unprepared(<<<'SQL'
-            CREATE FUNCTION audit_logs_reject_change() RETURNS trigger
+            CREATE OR REPLACE FUNCTION audit_logs_reject_change() RETURNS trigger
             LANGUAGE plpgsql AS $$
             BEGIN
                 RAISE EXCEPTION 'audit_logs is append-only: % is not allowed', TG_OP
