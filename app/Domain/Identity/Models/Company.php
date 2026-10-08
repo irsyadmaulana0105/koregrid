@@ -30,11 +30,13 @@ class Company extends Model
         ];
     }
 
+    /** @return HasMany<User, $this> */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
+    /** @return HasMany<PurchaseOrder, $this> */
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);

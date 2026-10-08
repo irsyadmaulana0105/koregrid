@@ -1,0 +1,9 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+
+parameters:
+    # Mulai dari level 5 (rekomendasi Larastan), naikkan bertahap.
+    level: 5
+    paths:
+        - app

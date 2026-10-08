@@ -26,11 +26,13 @@ class Product extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /** @return HasMany<ProductTier, $this> */
     public function tiers(): HasMany
     {
         return $this->hasMany(ProductTier::class);
     }
 
+    /** @return HasMany<Inventory, $this> */
     public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class);
@@ -40,7 +42,7 @@ class Product extends Model
     public function tierFor(PricingTier $tier): ?ProductTier
     {
         if ($this->relationLoaded('tiers')) {
-            return $this->tiers->first(fn (ProductTier $t) => $t->tier === $tier);
+            return $this->tiers->first(fn (ProductTier $t) => $t->getRawOriginal('tier') === $tier->value);
         }
 
         return $this->tiers()->where('tier', $tier->value)->first();

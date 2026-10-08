@@ -59,16 +59,19 @@ class User extends Authenticatable
         return Attribute::make(set: fn (string $value) => mb_strtolower(trim($value)));
     }
 
+    /** @return BelongsTo<Company, $this> */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /** @return BelongsTo<Warehouse, $this> */
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
+    /** @return HasMany<PurchaseOrder, $this> */
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class, 'buyer_id');

@@ -33,11 +33,13 @@ class Inventory extends Model
         return Attribute::get(fn (): int => $this->qty_on_hand - $this->qty_reserved);
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return BelongsTo<Warehouse, $this> */
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

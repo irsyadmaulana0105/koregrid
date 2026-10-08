@@ -41,11 +41,13 @@ class AuditLog extends Model
         static::deleting(fn () => throw new LogicException('Audit log bersifat append-only.'));
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return MorphTo<Model, $this> */
     public function auditable(): MorphTo
     {
         return $this->morphTo();

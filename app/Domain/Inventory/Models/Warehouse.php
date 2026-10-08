@@ -21,11 +21,13 @@ class Warehouse extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /** @return HasMany<Inventory, $this> */
     public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class);
     }
 
+    /** @return HasMany<User, $this> */
     public function staff(): HasMany
     {
         return $this->hasMany(User::class);

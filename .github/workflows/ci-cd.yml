@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PHP_VERSION: "8.4"
+  PHP_VERSION: "8.3"
   NODE_VERSION: "22"
 
 jobs:
@@ -56,12 +56,12 @@ jobs:
         image: postgres:16-alpine
         env:
           # Kredensial throwaway, hanya hidup selama job berjalan.
-          POSTGRES_DB: koregrid_test
+          POSTGRES_DB: koregrid_testing
           POSTGRES_USER: koregrid
           POSTGRES_PASSWORD: ci-throwaway
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U koregrid -d koregrid_test"
+          --health-cmd "pg_isready -U koregrid -d koregrid_testing"
           --health-interval 5s --health-timeout 3s --health-retries 10
       redis:
         image: redis:7-alpine
@@ -74,7 +74,7 @@ jobs:
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_DATABASE: koregrid_test
+      DB_DATABASE: koregrid_testing
       DB_USERNAME: koregrid
       DB_PASSWORD: ci-throwaway
       REDIS_HOST: 127.0.0.1

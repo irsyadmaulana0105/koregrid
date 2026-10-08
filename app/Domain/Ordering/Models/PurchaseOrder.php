@@ -49,26 +49,31 @@ class PurchaseOrder extends Model
         ];
     }
 
+    /** @return BelongsTo<Company, $this> */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function packer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'packed_by');
     }
 
+    /** @return HasMany<PurchaseOrderItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(PurchaseOrderItem::class);
