@@ -4,7 +4,7 @@
 
 ## Konvensi
 
-- PK: `BIGINT GENERATED ALWAYS AS IDENTITY`. Entitas yang terekspos ke publik ditambah kolom `uuid`.
+- PK: `BIGINT` auto-increment lewat `$table->id()` bawaan Laravel. Entitas yang terekspos ke publik ditambah kolom `uuid` (default `gen_random_uuid()` di database).
 - Uang: `NUMERIC(14,2)` (IDR), dengan `CHECK (>= 0)`.
 - Enum: `VARCHAR` + `CHECK`, bukan tipe `ENUM` PG, supaya penambahan nilai tidak memerlukan `ALTER TYPE`.
 - Integritas stok dijaga di level DB (constraint), bukan hanya di level aplikasi.
@@ -55,12 +55,15 @@ Pemilik tier harga. Semua user dalam satu perusahaan mendapat harga yang sama.
 | warehouse_id | FK NULL | scope data untuk Warehouse Staff |
 | name | varchar(150) | |
 | email | varchar(190) | UNIQUE index pada `lower(email)` |
+| email_verified_at | timestamptz NULL | |
 | password | varchar | bcrypt/argon2 |
 | is_active | boolean | default true |
 | last_login_at | timestamptz NULL | |
 | remember_token, deleted_at | | |
 
 Perubahan dari revisi 1: `company_name` dan `pricing_tier` dihapus dari `users`.
+
+Tabel pendukung: `password_reset_tokens` (bawaan Laravel). Tabel `sessions` dan `cache` tidak dibuat karena session dan cache memakai Redis. Normalisasi email ke huruf kecil dilakukan di aplikasi sebelum disimpan.
 
 ### RBAC (tabel bawaan Spatie)
 
@@ -165,7 +168,9 @@ Harga yang tampil ke buyer: `product_tiers` dengan `tier = companies.pricing_tie
 | request_id | uuid NULL | korelasi dengan log aplikasi |
 | created_at | timestamptz | tanpa `updated_at` |
 
-Proteksi: role DB aplikasi di-`REVOKE UPDATE, DELETE` pada tabel ini, ditambah trigger yang menolak `UPDATE`/`DELETE`.
+Proteksi: trigger menolak `UPDATE`, `DELETE`, dan `TRUNCATE`. FK ke `users` memakai `RESTRICT`, bukan `SET NULL`, karena `SET NULL` akan meng-UPDATE baris audit.
+
+Catatan production: owner tabel bisa menonaktifkan trigger. Aplikasi sebaiknya memakai role DB non-owner dengan `REVOKE UPDATE, DELETE` pada tabel ini.
 
 ## Index
 
@@ -173,7 +178,7 @@ Proteksi: role DB aplikasi di-`REVOKE UPDATE, DELETE` pada tabel ini, ditambah t
 |---|---|---|
 | users | (company_id) | daftar user per perusahaan |
 | purchase_orders | (company_id, status), (status, created_at), (reservation_expires_at) WHERE status = 'draft' | list per perusahaan, antrean approval/packing, job expiry |
-| purchase_order_items | (purchase_order_id), (product_id, warehouse_id) | join dan rekonsiliasi stok |
+| purchase_order_items | UNIQUE(purchase_order_id, product_id, warehouse_id) (sudah melayani lookup per PO), (product_id, warehouse_id) | join dan rekonsiliasi stok |
 | inventories | UNIQUE(product_id, warehouse_id) | lookup dan locking |
 | audit_logs | (auditable_type, auditable_id), (user_id, created_at), (created_at) | investigasi per entitas atau aktor |
 
