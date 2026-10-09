@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PHP_VERSION: "8.3"
+  PHP_VERSION: "8.4"
   NODE_VERSION: "22"
 
 jobs:
   # ── 1. Lint & static analysis ─────────────────────────────────
   quality:
     name: Lint & Static Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,7 @@ jobs:
   # ── 2. Tests (termasuk architecture test) ─────────────────────
   test:
     name: Tests (Pest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16-alpine
@@ -114,7 +114,7 @@ jobs:
   # ── 3. Audit dependensi ───────────────────────────────────────
   security:
     name: Dependency Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: composer audit --locked --no-dev
@@ -124,7 +124,7 @@ jobs:
   build:
     name: Build, Scan & Push Image
     needs: [quality, test, security]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
