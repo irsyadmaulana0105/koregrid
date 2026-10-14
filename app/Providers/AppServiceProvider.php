@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Domain\Audit\Contracts\AuditRecorder;
 use App\Domain\Identity\Enums\RoleName;
 use App\Domain\Identity\Models\User;
+use App\Infrastructure\Audit\DatabaseAuditRecorder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -11,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(AuditRecorder::class, DatabaseAuditRecorder::class);
     }
 
     public function boot(): void

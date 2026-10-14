@@ -114,7 +114,22 @@ Asumsi yang perlu dikonfirmasi: `po.complete` dipegang Buyer (konfirmasi barang 
 
 `Http → Application → Domain`. `Infrastructure` mengimplementasikan Contract dari `Domain`. Aturan ini dienforce dengan test arsitektur (Pest Arch) di CI.
 
-## 7. Keputusan Arsitektur
+## 7. Alur Use Case: Membuat Draft PO
+
+Action `CreateDraftPurchaseOrder` (lapisan Application) bekerja dalam satu transaksi database:
+
+- Memeriksa pembeli dan perusahaannya aktif, lalu menggabungkan baris kembar dan mengurutkannya.
+- Memuat produk dan memastikan gudang aktif.
+- Menentukan harga dan MOQ dari tier **perusahaan** pembeli. MOQ dibandingkan dengan jumlah total produk itu di semua gudang.
+- Mengunci stok per item lewat `ReserveStock` (satu UPDATE atomik dengan syarat di WHERE).
+- Menghitung subtotal, PPN (default 11%, `KOREGRID_TAX_RATE`), dan total dengan aritmetika desimal string (bcmath).
+- Menyimpan PO beserta item yang membawa snapshot harga dan MOQ, lalu menulis audit log `created`.
+
+Kegagalan di langkah mana pun (MOQ, stok, harga) membatalkan seluruh transaksi: tidak ada PO, reservasi, atau audit yang tersisa. Perubahan status selanjutnya hanya lewat `TransitionPurchaseOrder`, yang memvalidasi state machine dan menulis audit `status_changed`.
+
+Tanpa framework HTTP di lapisan ini: Domain tidak boleh bergantung pada Http, Application, maupun Infrastructure. Audit log ditulis lewat kontrak `AuditRecorder` (Domain) yang diimplementasikan `DatabaseAuditRecorder` (Infrastructure).
+
+## 8. Keputusan Arsitektur
 
 | Keputusan | Alasan | Konsekuensi |
 |---|---|---|

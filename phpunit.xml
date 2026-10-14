@@ -21,14 +21,25 @@
         </include>
     </source>
     <php>
-        <!-- force="true": nilai ini HARUS menang atas environment container/CI, karena test menjalankan migrate:fresh. -->
+        <!--
+            force="true": nilai ini HARUS menang atas environment container/CI, karena test menjalankan migrate:fresh.
+            Setiap nilai penting ditulis dua kali (env dan server) karena PHPUnit mengisi $_ENV dan $_SERVER secara terpisah,
+            dan Laravel bisa membaca salah satunya. Tanpa ini, nilai dari container (.env) bisa lolos dan test menyentuh database development.
+        -->
         <env name="APP_ENV" value="testing" force="true"/>
+        <server name="APP_ENV" value="testing" force="true"/>
         <env name="DB_CONNECTION" value="pgsql" force="true"/>
+        <server name="DB_CONNECTION" value="pgsql" force="true"/>
         <env name="DB_DATABASE" value="koregrid_testing" force="true"/>
+        <server name="DB_DATABASE" value="koregrid_testing" force="true"/>
         <env name="CACHE_STORE" value="array" force="true"/>
+        <server name="CACHE_STORE" value="array" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
+        <server name="SESSION_DRIVER" value="array" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
+        <server name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
+        <server name="MAIL_MAILER" value="array" force="true"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="PULSE_ENABLED" value="false"/>
