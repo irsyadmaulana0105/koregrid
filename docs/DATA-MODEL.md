@@ -138,7 +138,7 @@ Harga yang tampil ke buyer: `product_tiers` dengan `tier = companies.pricing_tie
 | shipped_at | timestamptz NULL | |
 | tracking_number | varchar(100) NULL | |
 | completed_at | timestamptz NULL | |
-| invoice_number | varchar(32) UNIQUE NULL | terisi saat `completed` |
+| invoice_number | varchar(32) UNIQUE NULL | terisi saat `completed`, format `INV-2026-000001`, dari sequence `invoice_number_seq` |
 | invoice_issued_at | timestamptz NULL | |
 
 ### purchase_order_items

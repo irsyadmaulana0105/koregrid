@@ -13,6 +13,7 @@ interface AuditRecorder
     /**
      * @param  array<string, mixed>|null  $oldValues
      * @param  array<string, mixed>|null  $newValues
+     * @param  int|null  $actorId  pelaku yang diteruskan eksplisit oleh use case; jika null dipakai user yang sedang login (null untuk aksi sistem)
      */
-    public function record(string $event, Model $auditable, ?array $oldValues = null, ?array $newValues = null): AuditLog;
+    public function record(string $event, Model $auditable, ?array $oldValues = null, ?array $newValues = null, ?int $actorId = null): AuditLog;
 }

@@ -129,7 +129,26 @@ Kegagalan di langkah mana pun (MOQ, stok, harga) membatalkan seluruh transaksi: 
 
 Tanpa framework HTTP di lapisan ini: Domain tidak boleh bergantung pada Http, Application, maupun Infrastructure. Audit log ditulis lewat kontrak `AuditRecorder` (Domain) yang diimplementasikan `DatabaseAuditRecorder` (Infrastructure).
 
-## 8. Keputusan Arsitektur
+## 8. Alur Persetujuan dan Otorisasi
+
+Setiap langkah alur PO adalah satu use case di lapisan Application. Semuanya berpola sama dan berjalan dalam satu transaksi:
+
+1. Mengunci baris PO (`SELECT ... FOR UPDATE`), sehingga dua aksi yang berebut PO yang sama berjalan bergantian dan keputusan dibuat dari status terbaru.
+2. Memeriksa otorisasi lewat `PurchaseOrderPolicy`: permission dari role **dan** cakupan data.
+3. Mengubah status lewat `TransitionPurchaseOrder` (state machine + audit dengan aktor yang eksplisit).
+4. Menjalankan efek samping (melepas atau mengeluarkan stok, menerbitkan invoice). Kegagalan di langkah mana pun membatalkan semuanya.
+
+Aturan cakupan data:
+
+- Buyer hanya bertindak atas PO milik perusahaannya sendiri. Ini mencegah buyer perusahaan lain menyentuh PO yang bukan miliknya.
+- Warehouse Staff yang terikat gudang hanya bertindak atas PO yang memuat barang dari gudangnya. Staf tanpa gudang tetap bertindak untuk semua gudang. Pengiriman masih per PO, bukan per gudang; pengiriman parsial per gudang adalah pengembangan berikutnya.
+- Finance dan Super Admin tidak dibatasi cakupan.
+
+Pemisahan tugas: pembuat PO tidak boleh menyetujui POnya sendiri, termasuk Super Admin. Aturan ini ada di use case `ApprovePurchaseOrder`, bukan di Policy, karena Super Admin melewati Policy lewat `Gate::before`.
+
+Efek pada stok: submit mempertahankan reservasi tetapi menghapus batas waktu draft; reject dan cancel melepas reservasi; ship mengeluarkan stok fisik; complete menerbitkan invoice (`INV-{tahun}-{6 digit}` dari sequence PostgreSQL). Setiap perubahan status tercatat di audit log lengkap dengan pelakunya.
+
+## 9. Keputusan Arsitektur
 
 | Keputusan | Alasan | Konsekuensi |
 |---|---|---|

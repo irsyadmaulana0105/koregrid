@@ -3,6 +3,7 @@
 namespace App\Application\Ordering\Actions;
 
 use App\Domain\Audit\Contracts\AuditRecorder;
+use App\Domain\Identity\Models\User;
 use App\Domain\Ordering\Enums\PoStatus;
 use App\Domain\Ordering\Exceptions\InvalidStatusTransitionException;
 use App\Domain\Ordering\Models\PurchaseOrder;
@@ -10,6 +11,7 @@ use App\Domain\Ordering\Models\PurchaseOrder;
 /**
  * Satu-satunya pintu perubahan status PO: memvalidasi state machine lalu mencatat audit.
  * Efek samping (stok, invoice) ditangani Action pemanggil di dalam transaksi yang sama.
+ * Kolom lain yang sudah diisi pemanggil lewat forceFill() ikut tersimpan dalam satu UPDATE.
  */
 final class TransitionPurchaseOrder
 {
@@ -17,8 +19,9 @@ final class TransitionPurchaseOrder
 
     /**
      * @param  array<string, mixed>  $context  keterangan tambahan untuk audit, mis. ['reason' => '...']
+     * @param  User|null  $actor  pelaku; null berarti aksi sistem (mis. job expiry)
      */
-    public function __invoke(PurchaseOrder $order, PoStatus $to, array $context = []): void
+    public function __invoke(PurchaseOrder $order, PoStatus $to, array $context = [], ?User $actor = null): void
     {
         /** @var PoStatus $from */
         $from = $order->status;
@@ -34,6 +37,7 @@ final class TransitionPurchaseOrder
             $order,
             ['status' => $from->value],
             ['status' => $to->value] + $context,
+            $actor?->id,
         );
     }
 }

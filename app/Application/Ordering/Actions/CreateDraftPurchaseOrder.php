@@ -78,7 +78,7 @@ final class CreateDraftPurchaseOrder
                 'subtotal' => $subtotal,
                 'tax_amount' => $tax,
                 'items' => $items,
-            ]);
+            ], $buyer->id);
 
             return $order->load('items');
         });

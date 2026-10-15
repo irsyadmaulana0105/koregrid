@@ -17,14 +17,14 @@ final class DatabaseAuditRecorder implements AuditRecorder
     /** Nama field yang nilainya tidak boleh masuk log. */
     private const SENSITIVE_KEYS = ['password', 'remember_token', 'token', 'secret', 'api_key'];
 
-    public function record(string $event, Model $auditable, ?array $oldValues = null, ?array $newValues = null): AuditLog
+    public function record(string $event, Model $auditable, ?array $oldValues = null, ?array $newValues = null, ?int $actorId = null): AuditLog
     {
         $request = app()->runningInConsole() ? null : request();
         $userAgent = $request === null ? '' : mb_substr((string) $request->userAgent(), 0, 255);
         $requestId = $request?->header('X-Request-Id');
 
         return AuditLog::create([
-            'user_id' => Auth::id(),
+            'user_id' => $actorId ?? Auth::id(),
             'event' => $event,
             'auditable_type' => $auditable->getMorphClass(),
             'auditable_id' => $auditable->getKey(),

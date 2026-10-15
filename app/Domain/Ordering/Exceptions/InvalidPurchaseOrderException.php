@@ -25,4 +25,19 @@ final class InvalidPurchaseOrderException extends DomainException
     {
         return new self("Gudang #{$warehouseId} tidak tersedia.");
     }
+
+    public static function reasonRequired(): self
+    {
+        return new self('Alasan penolakan wajib diisi.');
+    }
+
+    public static function invalidTrackingNumber(): self
+    {
+        return new self('Nomor resi wajib diisi (maksimal 100 karakter).');
+    }
+
+    public static function cannotApproveOwnOrder(): self
+    {
+        return new self('Pembuat PO tidak boleh menyetujui PO miliknya sendiri.');
+    }
 }

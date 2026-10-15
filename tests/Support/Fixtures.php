@@ -4,10 +4,12 @@ namespace Tests\Support;
 
 use App\Domain\Catalog\Models\Product;
 use App\Domain\Identity\Enums\PricingTier;
+use App\Domain\Identity\Enums\RoleName;
 use App\Domain\Identity\Models\Company;
 use App\Domain\Identity\Models\User;
 use App\Domain\Inventory\Models\Inventory;
 use App\Domain\Inventory\Models\Warehouse;
+use Database\Seeders\RolesAndPermissionsSeeder;
 
 /**
  * Pembuat data uji. Kode dan SKU harus unik per test, jadi beri nilai berbeda untuk entitas kedua.
@@ -27,6 +29,19 @@ final class Fixtures
         $company ??= self::company();
 
         return User::factory()->create(['company_id' => $company->id]);
+    }
+
+    /** User dengan satu role. Role dan permission disiapkan otomatis (seeder idempotent). */
+    public static function user(RoleName $role, ?Company $company = null, ?Warehouse $warehouse = null): User
+    {
+        app(RolesAndPermissionsSeeder::class)->run();
+
+        $user = User::factory()->create([
+            'company_id' => $company?->id,
+            'warehouse_id' => $warehouse?->id,
+        ]);
+
+        return $user->assignRole($role->value);
     }
 
     public static function warehouse(string $code = 'F-WH'): Warehouse
