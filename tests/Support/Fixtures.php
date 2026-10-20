@@ -75,6 +75,6 @@ final class Fixtures
             'product_id' => $product->id,
             'warehouse_id' => $warehouse->id,
             'qty_on_hand' => $onHand,
-        ]);
+        ])->refresh(); // muat nilai bawaan database (qty_reserved = 0)
     }
 }

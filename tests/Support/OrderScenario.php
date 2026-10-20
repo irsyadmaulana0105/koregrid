@@ -48,6 +48,9 @@ final class OrderScenario
             new OrderLineData($product->id, $warehouse->id, $quantity),
         ]);
 
+        // Reservasi dilakukan lewat UPDATE SQL, jadi objek di memori harus dimuat ulang agar mencerminkan stok terkunci.
+        $inventory->refresh();
+
         return new self(
             $company,
             $warehouse,
