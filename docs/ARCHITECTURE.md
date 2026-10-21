@@ -174,3 +174,5 @@ Lapisan `App\Http` hanya menerjemahkan request menjadi pemanggilan use case dan 
 - **Katalog dan draft PO**: `CatalogQuery` menghitung harga, MOQ, dan stok tersedia untuk satu tier. Klien hanya mengirim uuid produk, kode gudang, dan jumlah; `ResolveOrderLines` mengubahnya menjadi id internal, dan harga selalu ditentukan server dari tier perusahaan pembeli.
 - **Pelanggaran aturan bisnis** (MOQ, stok, produk tidak ada) diubah menjadi pesan validasi di halaman asal, bukan error 500. Kegagalan sistem tetap menjadi error.
 - **Batas endpoint mutasi**: limiter `actions` (30 per menit per user) dipasang pada route yang mengubah data.
+- **Daftar, detail, dan aksi PO**: daftar memakai `VisibleOrdersQuery`; detail dan semua aksi memakai route model binding dengan uuid. PO yang tidak boleh dilihat user dijawab 404 (bukan 403), dan pemeriksaan ini terjadi sebelum validasi. Hak untuk melakukan aksi ditegakkan oleh Policy di dalam use case, sedangkan `AvailableOrderActions` hanya menentukan tombol yang ditampilkan.
+- **Input teks bebas** (alasan penolakan, nomor resi) divalidasi di FormRequest, dibersihkan dari tag HTML, dan dipotong spasinya sebelum masuk use case.

@@ -35,7 +35,7 @@ it('creates a draft priced by the buyer tier and ignores any client price', func
 
     $this->actingAs($buyer)->from('/catalog')->post('/orders', [
         'lines' => [orderFlowLine($product->uuid, $warehouse->code, 60) + ['unit_price' => '1']],
-    ])->assertRedirect('/dashboard')->assertSessionHas('success');
+    ])->assertRedirectContains('/orders/')->assertSessionHas('success');
 
     $order = PurchaseOrder::query()->sole();
 
