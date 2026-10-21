@@ -28,6 +28,13 @@ function logout() {
                     <Link href="/dashboard" class="text-lg font-bold tracking-tight">KoreGrid</Link>
                     <nav class="flex gap-4 text-sm">
                         <Link href="/dashboard" class="font-medium text-slate-700 hover:text-slate-900">Dashboard</Link>
+                        <Link
+                            v-if="user?.can?.['product.view']"
+                            href="/catalog"
+                            class="font-medium text-slate-700 hover:text-slate-900"
+                        >
+                            Katalog
+                        </Link>
                     </nav>
                 </div>
 

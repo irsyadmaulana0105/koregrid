@@ -171,3 +171,6 @@ Lapisan `App\Http` hanya menerjemahkan request menjadi pemanggilan use case dan 
 - **Cakupan data PO**: `VisibleOrdersQuery` adalah bentuk query dari `PurchaseOrderPolicy::view`. Test membuktikan keduanya menghasilkan himpunan PO yang sama untuk setiap jenis aktor.
 - **Data bersama Inertia**: `auth.user` memuat peran, perusahaan, gudang, dan peta `can`. Peta `can` hanya untuk menampilkan atau menyembunyikan tombol; server tetap menegakkan hak akses di setiap aksi.
 - **Batas umum**: limiter `web` (120 request per menit per user, atau per IP bagi yang belum login) berlaku untuk semua halaman yang butuh login.
+- **Katalog dan draft PO**: `CatalogQuery` menghitung harga, MOQ, dan stok tersedia untuk satu tier. Klien hanya mengirim uuid produk, kode gudang, dan jumlah; `ResolveOrderLines` mengubahnya menjadi id internal, dan harga selalu ditentukan server dari tier perusahaan pembeli.
+- **Pelanggaran aturan bisnis** (MOQ, stok, produk tidak ada) diubah menjadi pesan validasi di halaman asal, bukan error 500. Kegagalan sistem tetap menjadi error.
+- **Batas endpoint mutasi**: limiter `actions` (30 per menit per user) dipasang pada route yang mengubah data.

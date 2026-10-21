@@ -31,5 +31,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Batas umum untuk semua halaman yang butuh login: per user, atau per IP jika belum login.
         RateLimiter::for('web', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
+
+        // Batas lebih ketat untuk endpoint yang mengubah data (membuat PO, persetujuan, dst.).
+        RateLimiter::for('actions', fn (Request $request) => Limit::perMinute(30)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
     }
 }
