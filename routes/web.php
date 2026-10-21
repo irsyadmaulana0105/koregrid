@@ -3,8 +3,10 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderActionController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\QueueController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -22,6 +24,8 @@ Route::middleware(['auth', 'throttle:web'])->group(function () {
         ->middleware('can:product.view')
         ->name('catalog');
 
+    Route::get('/queue', QueueController::class)->name('queue');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
     Route::post('/orders', [OrderController::class, 'store'])
@@ -31,6 +35,10 @@ Route::middleware(['auth', 'throttle:web'])->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])
         ->whereUuid('order')
         ->name('orders.show');
+
+    Route::get('/orders/{order}/invoice', InvoiceController::class)
+        ->whereUuid('order')
+        ->name('orders.invoice');
 
     // Nama method di OrderActionController sama dengan nama aksinya.
     foreach (['submit', 'cancel', 'approve', 'reject', 'pack', 'ship', 'complete'] as $action) {

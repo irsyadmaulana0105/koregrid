@@ -13,6 +13,8 @@ const actionError = computed(() => page.props.errors?.action ?? null);
 const base = computed(() => `/orders/${props.order.uuid}`);
 const actions = computed(() => props.order.actions);
 const hasActions = computed(() => Object.values(actions.value).some(Boolean));
+const canInvoice = computed(() => Boolean(page.props.auth.user.can?.["invoice.view"]));
+const invoiceUrl = computed(() => `${base.value}/invoice`);
 
 const timeline = computed(() =>
     [
@@ -129,7 +131,7 @@ function ship() {
                         </div>
                         <div v-if="order.invoice_number">
                             <dt class="text-xs text-slate-500">Invoice</dt>
-                            <dd>{{ order.invoice_number }}</dd>
+                            <dd>{{ order.invoice_number }} <Link v-if="canInvoice" :href="invoiceUrl" class="ml-2 text-xs underline">Lihat</Link></dd>
                         </div>
                         <div v-if="order.status === 'draft' && order.reservation_expires_at">
                             <dt class="text-xs text-slate-500">Stok ditahan sampai</dt>

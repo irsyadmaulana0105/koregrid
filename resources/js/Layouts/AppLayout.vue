@@ -15,6 +15,9 @@ const roleLabels = {
 
 const roleText = computed(() => (user.value?.roles ?? []).map((role) => roleLabels[role] ?? role).join(', '));
 const canSeeOrders = computed(() => Boolean(user.value?.can?.['po.view.own'] || user.value?.can?.['po.view.all']));
+const canSeeQueue = computed(() =>
+    Boolean(user.value?.can?.['po.approve'] || user.value?.can?.['po.pack'] || user.value?.can?.['po.ship']),
+);
 
 function logout() {
     router.post('/logout');
@@ -38,6 +41,9 @@ function logout() {
                         </Link>
                         <Link v-if="canSeeOrders" href="/orders" class="font-medium text-slate-700 hover:text-slate-900">
                             Pesanan
+                        </Link>
+                        <Link v-if="canSeeQueue" href="/queue" class="font-medium text-slate-700 hover:text-slate-900">
+                            Antrean
                         </Link>
                     </nav>
                 </div>
