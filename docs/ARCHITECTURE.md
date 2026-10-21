@@ -157,3 +157,17 @@ Efek pada stok: submit mempertahankan reservasi tetapi menghapus batas waktu dra
 | Snapshot harga di PO | Perubahan tier atau harga tidak mengubah PO lama | Kolom `unit_price`, `moq_applied`, `pricing_tier` di PO |
 | CHECK constraint untuk stok | Integritas tidak bergantung pada kode aplikasi | Pelanggaran muncul sebagai error DB, ditangkap Action |
 | Eloquent di `Domain` | Pragmatis untuk Laravel | Boundary dijaga lewat Action classes |
+
+## Lapisan HTTP
+
+Lapisan `App\Http` hanya menerjemahkan request menjadi pemanggilan use case dan hasilnya menjadi respons Inertia. Aturan bisnis tetap di Application dan Domain.
+
+- **Tidak ada akses database langsung**: lapisan HTTP tidak boleh memakai facade `DB`. Aturan ini dijaga oleh test arsitektur.
+- **Request id**: setiap request mendapat `X-Request-Id` (UUID). Id dari klien hanya dipakai jika berbentuk UUID yang valid, dan audit log menyimpan id yang sama dengan respons.
+- **Header keamanan**: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, dan `Cross-Origin-Opener-Policy` dipasang di semua respons web. CSP dipasang kecuali di environment local (server dev Vite memuat skrip dari port lain). HSTS hanya untuk request HTTPS.
+- **Login**: email dinormalisasi ke huruf kecil, hanya akun aktif yang bisa masuk, dan semua alasan gagal memakai pesan yang sama agar daftar akun tidak bisa ditebak.
+- **Pembatasan percobaan**: 5 percobaan per menit untuk setiap kombinasi email dan IP; percobaan berikutnya ditolak walaupun password benar.
+- **Sesi**: id sesi diganti setelah login (mencegah session fixation) dan sesi dibatalkan saat keluar. Login, login gagal terhadap akun yang ada, dan logout masuk audit log.
+- **Cakupan data PO**: `VisibleOrdersQuery` adalah bentuk query dari `PurchaseOrderPolicy::view`. Test membuktikan keduanya menghasilkan himpunan PO yang sama untuk setiap jenis aktor.
+- **Data bersama Inertia**: `auth.user` memuat peran, perusahaan, gudang, dan peta `can`. Peta `can` hanya untuk menampilkan atau menyembunyikan tombol; server tetap menegakkan hak akses di setiap aksi.
+- **Batas umum**: limiter `web` (120 request per menit per user, atau per IP bagi yang belum login) berlaku untuk semua halaman yang butuh login.
