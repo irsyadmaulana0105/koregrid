@@ -45,7 +45,7 @@ const sections = computed(() =>
                         </tr>
                         <tr v-for="order in section.rows" :key="order.uuid" class="hover:bg-slate-50">
                             <td class="px-4 py-3 font-medium">
-                                <Link :href="`/orders/${order.uuid}`" class="text-slate-900 underline-offset-2 hover:underline">
+                                <Link :href="`/orders/${order.uuid}`" class="text-sky-700 underline underline-offset-2 hover:text-sky-900">
                                     {{ order.po_number }}
                                 </Link>
                             </td>

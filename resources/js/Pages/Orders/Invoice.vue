@@ -2,6 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { formatDate, formatRupiah } from '../../lib/orderStatus';
 
+function printPage() {
+    window.print();
+}
+
 defineProps({
     invoice: { type: Object, required: true },
 });
@@ -18,7 +22,7 @@ defineProps({
             <button
                 type="button"
                 class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                @click="window.print()"
+                @click="printPage"
             >
                 Cetak
             </button>
