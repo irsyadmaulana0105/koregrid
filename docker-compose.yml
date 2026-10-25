@@ -33,7 +33,7 @@ services:
     command: php artisan schedule:work
 
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.31-alpine
     container_name: koregrid-nginx
     ports:
       - "${APP_PORT:-8080}:80"
