@@ -22,6 +22,13 @@ COPY . .
 COPY --from=vendor /app/vendor ./vendor
 RUN npm run build
 
+# ── Stage 2b: nginx production (aset statis di-bake; PHP diteruskan ke php-fpm di service `app`) ──
+# Ditaruh sebelum stage production supaya `docker build` tanpa --target tetap menghasilkan image aplikasi.
+FROM nginx:1.27-alpine AS nginx-production
+RUN apk upgrade --no-cache
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=assets /app/public /var/www/html/public
+
 # ── Stage 3: base runtime (dipakai development & production) ────
 FROM php:${PHP_VERSION}-fpm-alpine AS base
 COPY --from=mlocati/php-extension-installer:latest \
@@ -67,5 +74,10 @@ RUN --mount=from=composer:2,source=/usr/bin/composer,target=/usr/bin/composer \
              storage/framework/views storage/logs bootstrap/cache \
  && chown -R www-data:www-data storage bootstrap/cache
 
-# config:cache, route:cache, dan migrate dijalankan saat deploy (butuh env runtime).
+# config:cache, route:cache, dan view:cache dijalankan saat container start (butuh env runtime)
+# oleh entrypoint di bawah. Migrasi tetap langkah deploy tersendiri.
+COPY --chmod=755 docker/php/entrypoint-production.sh /usr/local/bin/docker-entrypoint-production
 USER www-data
+# ENTRYPOINT di image turunan mereset CMD bawaan, jadi CMD ditulis ulang.
+ENTRYPOINT ["docker-entrypoint-production"]
+CMD ["php-fpm"]

@@ -177,3 +177,10 @@ Lapisan `App\Http` hanya menerjemahkan request menjadi pemanggilan use case dan 
 - **Daftar, detail, dan aksi PO**: daftar memakai `VisibleOrdersQuery`; detail dan semua aksi memakai route model binding dengan uuid. PO yang tidak boleh dilihat user dijawab 404 (bukan 403), dan pemeriksaan ini terjadi sebelum validasi. Hak untuk melakukan aksi ditegakkan oleh Policy di dalam use case, sedangkan `AvailableOrderActions` hanya menentukan tombol yang ditampilkan.
 - **Input teks bebas** (alasan penolakan, nomor resi) divalidasi di FormRequest, dibersihkan dari tag HTML, dan dipotong spasinya sebelum masuk use case.
 - **Antrean kerja dan invoice**: antrean Finance (menunggu persetujuan) dan gudang (disetujui dan dikemas) memakai `VisibleOrdersQuery`, sehingga cakupan gudang tetap berlaku. Halaman invoice memeriksa berurutan: PO tidak terlihat = 404, tanpa hak `invoice.view` = 403, PO belum punya invoice = 404.
+
+## Deploy production
+
+- **Dua image**: aplikasi (php-fpm, target `production`) dan nginx (target `nginx-production`, berisi `public/` hasil build). Image tidak membawa file `.env`; semua konfigurasi masuk lewat environment container. Template ada di `.env.production.example`.
+- **Cache saat start**: `config:cache`, `route:cache`, dan `view:cache` dijalankan oleh `docker/php/entrypoint-production.sh` karena environment baru tersedia saat container berjalan. Container menolak start jika `APP_KEY` kosong. Migrasi tetap langkah deploy tersendiri, dan seeder demo menolak berjalan di luar local dan testing.
+- **Proxy**: `TRUSTED_PROXIES` berisi IP atau CIDR proxy yang sebenarnya dan dibaca lewat `config/trustedproxy.php`. Kosong berarti tidak ada proxy dipercaya, sehingga header `X-Forwarded-*` dari klien diabaikan. Nilai `*`, `**`, `REMOTE_ADDR`, dan rentang `/0` ditolak saat boot karena membuat IP klien, dan kunci pembatasan login, bisa dipalsukan.
+- **Cookie sesi**: `SESSION_SECURE_COOKIE=true` di production.
