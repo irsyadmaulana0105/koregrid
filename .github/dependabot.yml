@@ -40,6 +40,12 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      # vite dan laravel-vite-plugin harus naik mayor bersamaan (laravel-vite-plugin 3 butuh Vite 8).
+      - dependency-name: vite
+        update-types: ["version-update:semver-major"]
+      - dependency-name: laravel-vite-plugin
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /
@@ -50,6 +56,9 @@ updates:
       timezone: Asia/Jakarta
     commit-message:
       prefix: "build(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker-compose
     directory: /
@@ -60,3 +69,7 @@ updates:
       timezone: Asia/Jakarta
     commit-message:
       prefix: "build(deps)"
+    ignore:
+      # Mayor image data/runtime (postgres, redis, node) diuji dan dimigrasi manual, bukan lewat PR otomatis.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
