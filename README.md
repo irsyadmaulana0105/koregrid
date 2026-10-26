@@ -95,5 +95,5 @@ Lihat [`docs/`](docs/README.md): [ARCHITECTURE.md](docs/ARCHITECTURE.md) untuk t
 - [x] Tahap 1: inisiasi dan dokumentasi arsitektur
 - [x] Tahap 2 sampai 6b: Laravel, migrasi, domain, aturan harga dan stok, alur PO, RBAC, audit
 - [x] Tahap 6c: login, katalog, daftar dan detail PO, aksi workflow, antrean, invoice cetak
-- [ ] Dockerfile production (image nginx terpisah, cache konfigurasi dan rute, cookie sesi aman)
-- [ ] Penyematan versi GitHub Actions dan Dependabot
+- [x] Dockerfile production (image nginx terpisah, cache konfigurasi dan rute, cookie sesi aman)
+- [x] Penyematan versi GitHub Actions dan Dependabot
