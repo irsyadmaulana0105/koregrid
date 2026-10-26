@@ -28,9 +28,9 @@ COPY --from=mlocati/php-extension-installer:latest \
      /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions pdo_pgsql redis pcntl bcmath intl zip opcache
 
-# CVE-2026-111497 (brotli-libs, HIGH): pastikan versi yang sudah diperbaiki terpasang
-# selama image dasar PHP belum memuatnya. Aman dibiarkan; menjadi no-op setelah image dasar menyusul.
-RUN apk add --no-cache --upgrade 'brotli-libs>=1.2.1-r0'
+# Patch keamanan paket Alpine yang sudah dirilis repositori (mis. brotli-libs CVE-2026-111497,
+# curl CVE-2026-92392), selama image dasar PHP belum memuatnya. Menjadi no-op setelah image dasar menyusul.
+RUN apk upgrade --no-cache
 WORKDIR /var/www/html
 
 # ── Stage 4: development (kode di-mount dari host) ──────────────
