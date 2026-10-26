@@ -43,6 +43,8 @@ docker compose up -d --build
 
 # 4. Dependensi PHP, migrasi, dan data demo
 docker compose exec app composer install
+# Worker antrean dan scheduler menyala sebelum vendor/ ada; mulai ulang agar langsung berjalan
+docker compose restart queue scheduler
 docker compose exec app php artisan migrate --seed
 ```
 
