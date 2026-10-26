@@ -33,6 +33,7 @@ cd koregrid
 cp .env.example .env
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$(openssl rand -hex 16)/" .env
 sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$(openssl rand -hex 16)/" .env
+sed -i "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" .env
 
 # 2. Dependensi front-end (sebelum container dijalankan)
 docker compose run --rm node npm install
@@ -40,9 +41,8 @@ docker compose run --rm node npm install
 # 3. Jalankan layanan
 docker compose up -d --build
 
-# 4. Dependensi PHP, kunci aplikasi, migrasi, dan data demo
+# 4. Dependensi PHP, migrasi, dan data demo
 docker compose exec app composer install
-docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
