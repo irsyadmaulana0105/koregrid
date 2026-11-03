@@ -8,7 +8,7 @@ Proyek portofolio yang menunjukkan rekayasa perangkat lunak, DevOps, dan keamana
 
 1. **Harga bertingkat dan MOQ.** Harga per tier perusahaan (Gold, Silver, Bronze) dan syarat Minimum Order Quantity per produk, dihitung dari total jumlah di semua gudang. Harga selalu ditentukan server; klien hanya mengirim produk, gudang, dan jumlah.
 2. **Penguncian stok.** Stok gudang terkunci otomatis saat draft PO dibuat sehingga tidak terjadi penjualan berlebih.
-3. **Alur persetujuan end-to-end.** Draft -> menunggu persetujuan Finance -> disetujui -> dikemas -> dikirim -> selesai, dengan invoice yang bisa dicetak. Pemisahan tugas berlaku: pembuat PO tidak dapat menyetujui PO-nya sendiri.
+3. **Alur persetujuan end-to-end.** Draft -> menunggu persetujuan Finance -> disetujui -> dikemas -> dikirim -> selesai, dengan invoice yang bisa dicetak dan diunduh sebagai PDF. Pemisahan tugas berlaku: pembuat PO tidak dapat menyetujui PO-nya sendiri.
 4. **RBAC dan jejak audit.** Super Admin, Finance, Staf Gudang, dan B2B Buyer, dengan log untuk perubahan data sensitif serta login berhasil dan gagal.
 
 ## Tech Stack
@@ -97,5 +97,6 @@ Lihat [`docs/`](docs/README.md): [ARCHITECTURE.md](docs/ARCHITECTURE.md) untuk t
 - [x] Tahap 1: inisiasi dan dokumentasi arsitektur
 - [x] Tahap 2 sampai 6b: Laravel, migrasi, domain, aturan harga dan stok, alur PO, RBAC, audit
 - [x] Tahap 6c: login, katalog, daftar dan detail PO, aksi workflow, antrean, invoice cetak
+- [x] Invoice bisa diunduh sebagai PDF (`/orders/{order}/invoice/download`, permission `invoice.download`)
 - [x] Dockerfile production (image nginx terpisah, cache konfigurasi dan rute, cookie sesi aman)
 - [x] Penyematan versi GitHub Actions dan Dependabot

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoiceDownloadController;
 use App\Http\Controllers\OrderActionController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\QueueController;
@@ -39,6 +40,10 @@ Route::middleware(['auth', 'throttle:web'])->group(function () {
     Route::get('/orders/{order}/invoice', InvoiceController::class)
         ->whereUuid('order')
         ->name('orders.invoice');
+
+    Route::get('/orders/{order}/invoice/download', InvoiceDownloadController::class)
+        ->whereUuid('order')
+        ->name('orders.invoice.download');
 
     // Nama method di OrderActionController sama dengan nama aksinya.
     foreach (['submit', 'cancel', 'approve', 'reject', 'pack', 'ship', 'complete'] as $action) {

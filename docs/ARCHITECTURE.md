@@ -78,7 +78,7 @@ Memakai `spatie/laravel-permission`. Semua hak akses diberikan lewat role, tidak
 
 Asumsi yang perlu dikonfirmasi: `po.complete` dipegang Buyer (konfirmasi barang diterima).
 
-Catatan: `invoice.download` sudah didefinisikan di seeder, tetapi endpoint download belum tersedia; invoice ditampilkan dan dicetak lewat halaman web (pengembangan berikutnya).
+Catatan: `GET /orders/{order}/invoice/download` mengunduh invoice sebagai PDF (DomPDF) dengan permission `invoice.download`; urutan pemeriksaannya sama dengan halaman invoice (PO tidak terlihat = 404, tanpa hak = 403, belum ada invoice = 404).
 
 ### Aturan scope
 
@@ -177,7 +177,7 @@ Lapisan `App\Http` hanya menerjemahkan request menjadi pemanggilan use case dan 
 - **Batas endpoint mutasi**: limiter `actions` (30 per menit per user) dipasang pada route yang mengubah data.
 - **Daftar, detail, dan aksi PO**: daftar memakai `VisibleOrdersQuery`; detail dan semua aksi memakai route model binding dengan uuid. PO yang tidak boleh dilihat user dijawab 404 (bukan 403), dan pemeriksaan ini terjadi sebelum validasi. Hak untuk melakukan aksi ditegakkan oleh Policy di dalam use case, sedangkan `AvailableOrderActions` hanya menentukan tombol yang ditampilkan.
 - **Input teks bebas** (alasan penolakan, nomor resi) divalidasi di FormRequest, dibersihkan dari tag HTML, dan dipotong spasinya sebelum masuk use case.
-- **Antrean kerja dan invoice**: antrean Finance (menunggu persetujuan) dan gudang (disetujui dan dikemas) memakai `VisibleOrdersQuery`, sehingga cakupan gudang tetap berlaku. Halaman invoice memeriksa berurutan: PO tidak terlihat = 404, tanpa hak `invoice.view` = 403, PO belum punya invoice = 404.
+- **Antrean kerja dan invoice**: antrean Finance (menunggu persetujuan) dan gudang (disetujui dan dikemas) memakai `VisibleOrdersQuery`, sehingga cakupan gudang tetap berlaku. Halaman invoice memeriksa berurutan: PO tidak terlihat = 404, tanpa hak `invoice.view` = 403, PO belum punya invoice = 404. Unduhan PDF (`/orders/{order}/invoice/download`) menambahkan pemeriksaan `invoice.download` dengan urutan yang sama.
 
 ## Deploy production
 

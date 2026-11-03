@@ -59,3 +59,39 @@ it('answers 404 for an unknown or malformed order id', function () {
 it('sends guests to the login page', function () {
     $this->get('/orders/'.Str::uuid().'/invoice')->assertRedirect('/login');
 });
+
+it('downloads the invoice as pdf for the buyer and finance', function () {
+    $s = OrderScenario::draft(quantity: 50)->advanceTo(PoStatus::Completed);
+
+    foreach ([$s->buyer, $s->finance] as $user) {
+        $response = $this->actingAs($user)->get("/orders/{$s->order->uuid}/invoice/download");
+
+        $response->assertOk();
+        expect($response->headers->get('content-type'))->toStartWith('application/pdf');
+        expect($response->headers->get('content-disposition'))->toContain($s->order->invoice_number.'.pdf');
+        expect($response->getContent())->toStartWith('%PDF');
+    }
+});
+
+it('answers 404 when downloading before the invoice exists', function () {
+    $s = OrderScenario::draft()->advanceTo(PoStatus::Shipped);
+
+    $this->actingAs($s->finance)->get("/orders/{$s->order->uuid}/invoice/download")->assertNotFound();
+});
+
+it('answers 404 when downloading the invoice of another company', function () {
+    $one = OrderScenario::draft(tag: '1')->advanceTo(PoStatus::Completed);
+    $two = OrderScenario::draft(tag: '2');
+
+    $this->actingAs($two->buyer)->get("/orders/{$one->order->uuid}/invoice/download")->assertNotFound();
+});
+
+it('forbids warehouse staff, who may view the order but not download invoices', function () {
+    $s = OrderScenario::draft()->advanceTo(PoStatus::Completed);
+
+    $this->actingAs($s->staff)->get("/orders/{$s->order->uuid}/invoice/download")->assertForbidden();
+});
+
+it('sends guests of the download endpoint to the login page', function () {
+    $this->get('/orders/'.Str::uuid().'/invoice/download')->assertRedirect('/login');
+});

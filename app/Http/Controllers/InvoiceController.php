@@ -26,7 +26,7 @@ final class InvoiceController
 
         $order->loadMissing('company');
 
-        $taxPercent = rtrim(rtrim(bcmul((string) config('koregrid.tax_rate'), '100', 2), '0'), '.');
+        $taxPercent = OrderPresenter::taxPercent();
 
         return Inertia::render('Orders/Invoice', [
             'invoice' => OrderPresenter::detail($order, []) + [

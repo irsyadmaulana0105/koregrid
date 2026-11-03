@@ -14,6 +14,12 @@ use Carbon\CarbonInterface;
  */
 final class OrderPresenter
 {
+    /** Persen PPN (mis. `11`), dipakai halaman invoice dan PDF. */
+    public static function taxPercent(): string
+    {
+        return rtrim(rtrim(bcmul((string) config('koregrid.tax_rate'), '100', 2), '0'), '.');
+    }
+
     /** @return array<string, string|null> */
     public static function row(PurchaseOrder $order): array
     {

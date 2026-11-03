@@ -1,10 +1,14 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { formatDate, formatRupiah } from '../../lib/orderStatus';
 
 function printPage() {
     window.print();
 }
+
+const page = usePage();
+const canDownload = computed(() => Boolean(page.props.auth.user.can?.['invoice.download']));
 
 defineProps({
     invoice: { type: Object, required: true },
@@ -19,13 +23,22 @@ defineProps({
             <Link :href="`/orders/${invoice.uuid}`" class="text-sm text-slate-600 hover:text-slate-900">
                 &larr; Kembali ke pesanan
             </Link>
-            <button
-                type="button"
-                class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                @click="printPage"
-            >
-                Cetak
-            </button>
+            <div class="flex items-center gap-2">
+                <a
+                    v-if="canDownload"
+                    :href="`/orders/${invoice.uuid}/invoice/download`"
+                    class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                    Unduh PDF
+                </a>
+                <button
+                    type="button"
+                    class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                    @click="printPage"
+                >
+                    Cetak
+                </button>
+            </div>
         </div>
 
         <article class="mx-auto max-w-3xl rounded-lg bg-white p-10 shadow print:max-w-none print:rounded-none print:shadow-none">
