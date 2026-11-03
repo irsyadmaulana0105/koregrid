@@ -33,11 +33,10 @@ Catatan production: Nginx perlu akses ke `public/`. Di production, bake image Ng
 
 ```mermaid
 flowchart LR
-    A[Request] --> B["Rate limiter (Redis)"]
+    A[Request] --> B["Rate limiter"]
     B --> C[Auth + session]
-    C --> D[SanitizeInput]
-    D --> E["FormRequest (validasi)"]
-    E --> F["Policy (permission + scope)"]
+    C --> D["FormRequest (validasi + sanitasi teks bebas)"]
+    D --> F["Policy / scope check di Action"]
     F --> G["Action (transaksi DB)"]
     G --> H[Audit log]
     H --> I[Response Inertia]
@@ -79,6 +78,8 @@ Memakai `spatie/laravel-permission`. Semua hak akses diberikan lewat role, tidak
 
 Asumsi yang perlu dikonfirmasi: `po.complete` dipegang Buyer (konfirmasi barang diterima).
 
+Catatan: `invoice.download` sudah didefinisikan di seeder, tetapi endpoint download belum tersedia; invoice ditampilkan dan dicetak lewat halaman web (pengembangan berikutnya).
+
 ### Aturan scope
 
 | Role | Data yang boleh diakses |
@@ -103,9 +104,9 @@ Asumsi yang perlu dikonfirmasi: `po.complete` dipegang Buyer (konfirmasi barang 
 
 | Kontrol | Implementasi |
 |---|---|
-| Rate limiting | Named limiter berbasis Redis: `login` (per email + IP), `api` (per user), `po-submit` (per user). |
+| Rate limiting | Limiter berbasis cache: `web` (120 request/menit per user, atau per IP bagi yang belum login) dan `actions` (30/menit per user untuk route yang mengubah data). Login dibatasi 5 percobaan per menit per kombinasi email+IP (divalidasi di `LoginRequest`, bukan named limiter Redis). |
 | Input sanitization | FormRequest untuk validasi tipe dan panjang. Field teks bebas di-trim dan di-strip tag. Query lewat Eloquent (parameter binding). Vue memakai interpolasi `{{ }}`, tanpa `v-html`. |
-| Audit trail | Observer untuk model sensitif plus log eksplisit untuk perubahan status. Tabel append-only (lihat `DATA-MODEL.md`). |
+| Audit trail | Log eksplisit di setiap Action (mis. `status_changed`, `created`, `login`) lewat kontrak `AuditRecorder` (Domain) yang diimplementasikan `DatabaseAuditRecorder` (Infrastructure). Tidak memakai observer model. Tabel append-only (lihat `DATA-MODEL.md`). |
 | Secret | Hanya dari `.env`. Compose gagal start jika secret kosong. Image tidak memuat `.env`. |
 | Container | Image runtime berjalan sebagai non-root (`www-data`). Postgres dan Redis tidak punya port publik. |
 | Supply chain | `composer audit`, `npm audit`, dan Trivy di CI. |

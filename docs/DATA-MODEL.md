@@ -123,7 +123,7 @@ Harga yang tampil ke buyer: `product_tiers` dengan `tier = companies.pricing_tie
 | Kolom | Tipe | Catatan |
 |---|---|---|
 | id, uuid | | |
-| po_number | varchar(32) UNIQUE | mis. `PO-2026-000123`, dari sequence PostgreSQL `po_number_seq` (aman untuk request paralel; boleh ada celah angka) |
+| po_number | varchar(32) UNIQUE | mis. `PO-2026-000123`, dari sequence PostgreSQL **global** `po_number_seq` (aman untuk request paralel; boleh ada celah; tidak reset per tahun) |
 | company_id | FK companies | pemilik PO, dasar scope akses buyer |
 | buyer_id | FK users | user pembuat PO |
 | status | varchar(20) | CHECK IN: `draft`, `pending_approval`, `approved`, `packing`, `shipped`, `completed`, `rejected`, `cancelled` |
@@ -138,7 +138,7 @@ Harga yang tampil ke buyer: `product_tiers` dengan `tier = companies.pricing_tie
 | shipped_at | timestamptz NULL | |
 | tracking_number | varchar(100) NULL | |
 | completed_at | timestamptz NULL | |
-| invoice_number | varchar(32) UNIQUE NULL | terisi saat `completed`, format `INV-2026-000001`, dari sequence `invoice_number_seq` |
+| invoice_number | varchar(32) UNIQUE NULL | terisi saat `completed`, format `INV-2026-000001`, dari sequence **global** `invoice_number_seq` (tidak reset per tahun) |
 | invoice_issued_at | timestamptz NULL | |
 
 ### purchase_order_items
@@ -191,7 +191,7 @@ Catatan production: owner tabel bisa menonaktifkan trigger. Aplikasi sebaiknya m
 3. **Commit** (saat `shipped`): `qty_on_hand -= qty` dan `qty_reserved -= qty` dalam satu transaksi.
 4. **Urutan penguncian**: item PO diurutkan menurut (product_id, warehouse_id) sebelum direservasi, sehingga PO paralel mengunci baris dalam urutan yang sama dan tidak saling deadlock.
 5. **Expiry**: draft yang `reservation_expires_at`-nya lewat dibatalkan oleh `orders:expire-drafts` (tiap 5 menit) dan stoknya dilepas. Hanya status `draft` yang kedaluwarsa; PO `pending_approval` menahan stok sampai ada keputusan.
-6. Redis lock dipakai hanya untuk serialisasi operasi submit PO yang lintas banyak baris, bukan sebagai sumber kebenaran.
+6. Aksi yang mengubah banyak baris (approve, ship, cancel, dll.) diserialisasi dengan `SELECT ... FOR UPDATE` pada baris PO, sehingga dua aksi yang berebut PO yang sama berjalan bergantian. Redis tidak dipakai sebagai lock maupun sumber kebenaran.
 
 ## State Machine PO
 
