@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '../Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -65,18 +65,24 @@ const total = computed(() => Object.values(props.stats).reduce((sum, count) => s
         </section>
 
         <section>
-            <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Purchase order Anda ({{ total }})
-            </h2>
+            <div class="mb-3 flex items-end justify-between gap-4">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                    Ringkasan purchase order ({{ total }})
+                </h2>
+                <Link href="/orders" class="text-sm font-medium text-sky-700 hover:underline">
+                    Lihat semua pesanan &rarr;
+                </Link>
+            </div>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div
+                <Link
                     v-for="card in statusCards"
                     :key="card.key"
-                    class="rounded-lg border border-slate-200 bg-white p-4"
+                    :href="`/orders?status=${card.key}`"
+                    class="group rounded-lg border border-slate-200 bg-white p-4 outline-none transition hover:-translate-y-0.5 hover:border-slate-400 hover:shadow-md focus-visible:ring-2 focus-visible:ring-slate-900"
                 >
-                    <p class="text-3xl font-bold">{{ stats[card.key] ?? 0 }}</p>
-                    <p class="mt-1 text-sm text-slate-600">{{ card.label }}</p>
-                </div>
+                    <p class="text-3xl font-bold tabular-nums">{{ stats[card.key] ?? 0 }}</p>
+                    <p class="mt-1 text-sm text-slate-600 transition group-hover:text-slate-900">{{ card.label }}</p>
+                </Link>
             </div>
         </section>
     </AppLayout>

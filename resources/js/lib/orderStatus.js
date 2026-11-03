@@ -20,7 +20,7 @@ export const statusStyles = {
     cancelled: 'bg-slate-200 text-slate-600',
 };
 
-const rupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 2 });
+const rupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
 
 export const formatRupiah = (value) => (value === null || value === undefined ? '-' : rupiah.format(Number(value)));
 
