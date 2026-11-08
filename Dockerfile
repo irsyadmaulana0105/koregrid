@@ -24,7 +24,7 @@ RUN npm run build
 
 # ── Stage 2b: nginx production (aset statis di-bake; PHP diteruskan ke php-fpm di service `app`) ──
 # Ditaruh sebelum stage production supaya `docker build` tanpa --target tetap menghasilkan image aplikasi.
-FROM nginx:1.27-alpine AS nginx-production
+FROM nginx:1.29-alpine AS nginx-production
 RUN apk upgrade --no-cache
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=assets /app/public /var/www/html/public
